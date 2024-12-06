@@ -34,8 +34,8 @@ def readConfig(cfgFile):
     config.read(cfgFile)
 
     if 'TORLL' in config:
-        CONFIG.torcpdb_url = config['TORLL'].get('torll_url', 'http://127.0.0.1:5006')
-        CONFIG.torcpdb_apikey = config['TORLL'].get('torll_apikey', '')
+        CONFIG.torll_url = config['TORLL'].get('torll_url', 'http://127.0.0.1:5006')
+        CONFIG.torll_url = config['TORLL'].get('torll_apikey', '')
 
     if 'CATEGORY_DIR' in config:
         configitems = config.items('CATEGORY_DIR')
