@@ -4,6 +4,20 @@
 * 完成后向 torll 报告入库
 
 
+## 安装
+* rcp.py 需要依赖 sibling 目录中的 torcp2
+```sh
+git clone https://github.com/ccf-2012/rcp.git
+git clone https://github.com/ccf-2012/torcp2.git
+
+```
+* 安装依赖
+```sh
+cd rcp
+pip install -r requirements.txt
+```
+
+
 ## usage
 ```
 python rcp.py -h
@@ -34,7 +48,7 @@ options:
                         config file.
 ```
 
-## 对应 qbit 中的设置
+## qbit 中的设置
 * 在 qbit 完成后执行脚本，可以输出以下参数：
 ```
 %N：Torrent 名称
@@ -56,9 +70,63 @@ options:
 python rcp.py -F "%F" -I "%I" -D "%D" -L "%L" -G "%G" -Z "%Z" --hash-dir
 ```
 
-* 为方便，加了qbfunc.py，可以如下调用：
+* 为方便，加了qbfunc.py，通过 qbittorrent-api 获取信息，可以如下调用：
 ```sh
 python rcp.py -I "%I"
 ```
+
+## config.ini
+* 需要一个配置文件，内容包括：
+```ini
+[TORLL]
+torll_url = http://127.0.0.1:5006
+torll_apikey = something
+
+[TORCP]
+linkdir = /volume1/video/downloads/emby
+bracket = --plex-bracket
+tmdb_lang = zh-CN
+lang = cn,ja,ko
+symbolink =
+genre = 动画,纪录,真人秀,脱口秀,音乐会
+mbrootdir = /volume1/video/downloads/emby
+notifyplex = True
+areadir = --sep-area5
+torcpdb_url = http://127.0.0.1:5009
+torcpdb_apikey = somethin_anything
+
+[CATEGORY_DIR]
+未完结 = 未完结
+特摄 = 特摄
+综艺 = 综艺
+
+[AUTO_CATEGORY]
+未完结 = S\d+E\d+|第\d+.*集
+特摄 = 特摄
+
+[QBIT]
+server_ip = 192.168.5.6
+port = 15190
+user = admin
+pass = Setup194
+apirun = True
+dockerfrom = /downloads
+dockerto = /volume1/video/downloads
+auto_delete = False
+```
+
+其中以下分别 torll 和 torcpdb 服务的配置项，需要手工设置：
+```ini
+[TORLL]
+torll_url = http://127.0.0.1:5006
+torll_apikey = something
+
+[TORCP]
+torcpdb_url = http://127.0.0.1:5009
+torcpdb_apikey = somethin_anything
+```
+
+在作好上述设置后，其它的设置，可以通过 `rcp.py --get-config` 获取
+
 
 

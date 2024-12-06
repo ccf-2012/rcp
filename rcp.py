@@ -3,7 +3,7 @@ import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "torcp2"))
 from torcp.torcp import Torcp
-from myconfig import readConfig, CONFIG
+from myconfig import readConfig, loadJsonConfig, CONFIG
 import argparse
 import re
 import qbfunc
@@ -87,19 +87,25 @@ def getSiteIdDirName(pathStr, savepath):
 
 
 import requests
-def query_torll_dlinfo(qbid):
+def myheader():
+    headers = {}
     if CONFIG.torll_apikey:
         headers = {
             'User-Agent': 'python/request:torcp',
             'X-API-Key': CONFIG.torll_apikey
-        }    
+        }
+    else:
+        logger.error('api-key not set.')
+    return headers
+
+def query_torll_dlinfo(qbid):
     try:
         json_data = {
             'qbid': qbid
         }
         response = requests.get(
             CONFIG.torll_url+ "/api/getdlinfo", 
-            headers=headers,
+            headers=myheader(),
             json=json_data
         )
         response.raise_for_status()  # 如果响应状态码不是200，抛出异常
@@ -109,15 +115,10 @@ def query_torll_dlinfo(qbid):
         raise
 
 def post_item_torcped(json_data):
-    if CONFIG.torll_apikey:
-        headers = {
-            'User-Agent': 'python/request:torcp',
-            'X-API-Key': CONFIG.torll_apikey
-        }    
     try:
         response = requests.post(
             CONFIG.torll_url+ "/api/ontorcped", 
-            headers=headers,
+            headers=myheader(),
             json=json_data
         )
         response.raise_for_status()  # 如果响应状态码不是200，抛出异常
@@ -271,23 +272,22 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
         o = Torcp()
         o.main(argv, eo)
 
-
         return 200
     return 401
 
 
-import subprocess
-def callAfterRcpShellScript(torhash):
-    scriptcmd = os.path.join(os.path.dirname(__file__), 'after_rcp.sh')
-    if not os.path.exists(scriptcmd):
-        # nothing to run, nothing to say
-        return
-    logger.info(f'call shell script: {scriptcmd}')
-    r = subprocess.call(['sh', scriptcmd, torhash])
-    if r > 0:
-        logger.warning(f'return value: {r}')
-    else:
-        logger.info(f'return value: {r}')
+# import subprocess
+# def callAfterRcpShellScript(torhash):
+#     scriptcmd = os.path.join(os.path.dirname(__file__), 'after_rcp.sh')
+#     if not os.path.exists(scriptcmd):
+#         # nothing to run, nothing to say
+#         return
+#     logger.info(f'call shell script: {scriptcmd}')
+#     r = subprocess.call(['sh', scriptcmd, torhash])
+#     if r > 0:
+#         logger.warning(f'return value: {r}')
+#     else:
+#         logger.info(f'return value: {r}')
 
 
 def torcpByHash(torhash):
@@ -308,6 +308,18 @@ def torcpByHash(torhash):
         return 403
 
 
+def getTorllConfig():
+    try:
+        response = requests.get(
+            CONFIG.torll_url+ "/api/getconfig", 
+            headers=myheader())
+        response.raise_for_status()  # 如果响应状态码不是200，抛出异常
+        loadJsonConfig(ARGS.config, response.json())
+        return 
+    except requests.RequestException as e:
+        print(f"查询失败: {str(e)}")
+        raise    
+
 def loadArgs():
     parser = argparse.ArgumentParser(
         description='wrapper to TORCP to save log in sqlite db.')
@@ -322,6 +334,7 @@ def loadArgs():
     parser.add_argument('--tmdbcatid', help='specify TMDb as tv-12345/m-12345.')
     parser.add_argument('--auto-resume-delete', action='store_true', help='try to resume paused torrent when disk space available.') 
     parser.add_argument('-C', '--config', help='config file.')
+    parser.add_argument('--get-config', action='store_true', help='get config from torll server.') 
 
     global ARGS
     ARGS = parser.parse_args()
@@ -333,6 +346,9 @@ def main():
     loadArgs()
     # app.initDatabase()
     readConfig(ARGS.config)
+    if ARGS.get_config:
+        getTorllConfig()
+        return
     if ARGS.full_path and ARGS.save_path:
         runTorcp(torpath=ARGS.full_path, 
                  torhash=ARGS.info_hash, 
