@@ -35,7 +35,7 @@ def readConfig(cfgFile):
 
     if 'TORLL' in config:
         CONFIG.torll_url = config['TORLL'].get('torll_url', 'http://127.0.0.1:5006')
-        CONFIG.torll_url = config['TORLL'].get('torll_apikey', '')
+        CONFIG.torll_apikey = config['TORLL'].get('torll_apikey', '')
 
     if 'CATEGORY_DIR' in config:
         configitems = config.items('CATEGORY_DIR')

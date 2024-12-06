@@ -207,7 +207,7 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
                     extitle = json_data['extitle']
                 if 'imdb_id' in json_data:
                     imdb_id = json_data['imdb_id']
-                    if imdb_id.startwith('tt'):
+                    if imdb_id.startswith('tt'):
                         torimdb = imdb_id
 
         # 根据 autocatdir 找 此分类 是否配置了 重定位的 位置
