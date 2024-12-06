@@ -194,10 +194,10 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
             matchTagList = [z for z in torlist if z in [g[0] for g in CONFIG.categoryDirList]]
             if len(matchTagList) > 0:
                 autocatdir = matchTagList[0]
-        tordownload_qbid = ''
-        if torcat:
+        tordownload_qbid = torcat
+        if tordownload_qbid:
             # remote query /api/getdlinfo
-            json_data = query_torll_dlinfo(torcat)
+            json_data = query_torll_dlinfo(tordownload_qbid)
             if json_data:
                 if 'qbid' in json_data:
                     qbid = json_data['qbid']
@@ -209,7 +209,9 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
                     imdb_id = json_data['imdb_id']
                     if imdb_id.startswith('tt'):
                         torimdb = imdb_id
-
+        else:
+            logger.error('no qbid set in torrent category.')
+            
         # 根据 autocatdir 找 此分类 是否配置了 重定位的 位置
         relocated = False
         relocatedir = ''
