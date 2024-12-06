@@ -83,6 +83,10 @@ def readConfig(cfgFile):
 def loadJsonConfig(cfgFile, json_data):
     config = configparser.ConfigParser()
     config.read(cfgFile)
+    if not config.has_section('QBIT'):
+        config.add_section('QBIT')
+    if not config.has_section('TORCP'):
+        config.add_section('TORCP')
     if 'qb_host' in json_data:
         CONFIG.qbServer = json_data.get('qb_host')
         config.set('QBIT', 'server_ip', CONFIG.qbServer)
