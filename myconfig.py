@@ -24,7 +24,7 @@ class configData():
     insertHashDir = False
     categoryDirList = []    # config.ini only
     autoCategory = []       # config.ini only
-
+    freeDiskMargin = 5
 
 CONFIG = configData()
 
