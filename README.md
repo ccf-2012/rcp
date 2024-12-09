@@ -75,7 +75,7 @@ python rcp.py -F "%F" -I "%I" -D "%D" -L "%L" -G "%G" -Z "%Z" --hash-dir
 python rcp.py -I "%I"
 ```
 
-## config.ini
+## rcpconfig.ini
 * 需要一个配置文件，内容包括：
 ```ini
 [TORLL]
@@ -85,8 +85,6 @@ torll_apikey = something
 [TORCP]
 linkdir = /volume1/video/downloads/emby
 bracket = --plex-bracket
-tmdb_lang = zh-CN
-lang = cn,ja,ko
 symbolink =
 genre = 动画,纪录,真人秀,脱口秀,音乐会
 mbrootdir = /volume1/video/downloads/emby

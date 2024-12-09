@@ -3,10 +3,9 @@ import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "torcp2"))
 from torcp.torcp import Torcp
-from myconfig import readConfig, loadJsonConfig, CONFIG
+from rcpconfig import readConfig, loadJsonConfig, CONFIG
 import argparse
 import re
-import qbfunc
 from loguru import logger
 
 
@@ -289,19 +288,36 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
 #     else:
 #         logger.info(f'return value: {r}')
 
-
+from qbitconfig import QbitConfig
+from qbfunc import QbitClient
 def torcpByHash(torhash):
     if torhash:
-        torpath, torhash2, torsize, torcat, savepath, tortracker, tortag = qbfunc.getTorrentByHash(torhash)
+        qbconfig = QbitConfig(
+            qbitname=CONFIG.qbitname,
+            host=CONFIG.host,
+            port=CONFIG.port,
+            username=CONFIG.username,
+            password=CONFIG.password,
+            docker_from=CONFIG.docker_from,
+            docker_to=CONFIG.docker_to,
+            link_dir=CONFIG.link_dir,
+            auto_delete=CONFIG.auto_delete,
+            islocal = CONFIG.islocal,
+            default=CONFIG.default
+        )
+        qbclient = QbitClient(qbconfig)
+        torinfo = qbclient.get_torrent_by_hash(torhash)
+        logger.info(f'调用 torcp: {torinfo.content_path}')
         r = runTorcp(
-            torpath=torpath, 
-            torhash=torhash2, 
-            torsize=torsize, 
-            torcat=torcat,
-            savepath=savepath, 
-            insertHashDir=ARGS.hash_dir, 
-            tmdbcatidstr=ARGS.tmdbcatid, 
-            tortag=tortag)
+                torpath=torinfo.content_path, 
+                torhash=torinfo.torhash, 
+                torsize=torinfo.size, 
+                torcat=torinfo.category, 
+                savepath=torinfo.save_path, 
+                abbrevTracker=torinfo.tracker_name, 
+                insertHashDir=CONFIG.insertHashDir,
+                tmdbcatidstr=None,
+                tortag=torinfo.tags)
         return r
     else:
         print("set -I arg")
@@ -339,7 +355,7 @@ def loadArgs():
     global ARGS
     ARGS = parser.parse_args()
     if not ARGS.config:
-        ARGS.config = os.path.join(os.path.dirname(__file__), 'config.ini')
+        ARGS.config = os.path.join(os.path.dirname(__file__), 'rcpconfig.ini')
 
 
 def main():
@@ -361,8 +377,8 @@ def main():
     else:
         torcpByHash(ARGS.info_hash)
         # callAfterRcpShellScript(ARGS.info_hash)
-    if ARGS.auto_resume_delete:
-        qbfunc.autoResumeDelete(delete_to_free=True)
+    # if ARGS.auto_resume_delete:
+    #     qbfunc.autoResumeDelete(delete_to_free=True)
 
 if __name__ == '__main__':
     logger.remove()

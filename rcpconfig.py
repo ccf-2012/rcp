@@ -2,10 +2,13 @@ import configparser
 import os
 
 class configData():
+    # apikey
     torcpdb_url = 'http://127.0.0.1:5009'
     torcpdb_apikey = ''
     torll_url = 'http://127.0.0.1:5006'
     torll_apikey = ''
+    # qbit
+    qbName = 'this'
     qbServer = '127.0.0.1'
     qbPort = ''
     qbUser = ''
@@ -13,9 +16,14 @@ class configData():
     dockerFrom = ''
     dockerTo = ''
     linkDir = ''
+    auto_delete = False
+    freeDiskMargin = 5
+    run_torcp_by_api = False
+    add_pause = False
+    default = True
+    islocal = True
+    # TORCP
     bracket = ''
-    tmdbLang = 'en'
-    lang = 'cn,ja,ko'
     areadir = ''
     genre = ''
     genreWithArea = ''
@@ -24,7 +32,6 @@ class configData():
     insertHashDir = False
     categoryDirList = []    # config.ini only
     autoCategory = []       # config.ini only
-    freeDiskMargin = 5
 
 CONFIG = configData()
 
@@ -64,6 +71,7 @@ def readConfig(cfgFile):
         CONFIG.torcpdb_apikey = config['TORCP'].get('torcpdb_apikey', '')
 
     if 'QBIT' in config:
+        CONFIG.qbName = config['QBIT'].get('qbitname', 'this')
         CONFIG.qbServer = config['QBIT'].get('server_ip', '127.0.0.1')
         CONFIG.qbPort = config['QBIT'].get('port', '')
         CONFIG.qbUser = config['QBIT'].get('user', '')
@@ -73,12 +81,12 @@ def readConfig(cfgFile):
         CONFIG.dockerFrom = config['QBIT'].get('dockerFrom', '')
         CONFIG.dockerTo = config['QBIT'].get('dockerTo', '')
 
-        # CONFIG.dryrun = config['QBIT'].getboolean('dryrun', False)
-        # CONFIG.addPause = config['QBIT'].getboolean('add_pause', False)
-        # CONFIG.autoDelete = config['QBIT'].getboolean('auto_delete', False)
+        CONFIG.dryrun = config['QBIT'].getboolean('dryrun', False)
+        CONFIG.addPause = config['QBIT'].getboolean('add_pause', False)
+        CONFIG.autoDelete = config['QBIT'].getboolean('auto_delete', False)
 
-        # CONFIG.rcpshfile = os.path.join(os.path.dirname(__file__), 'rcp.sh')
-        # CONFIG.freeDiskMargin = config['QBIT'].getint('free_disk_margin', 5)
+        CONFIG.rcpshfile = os.path.join(os.path.dirname(__file__), 'rcp.sh')
+        CONFIG.freeDiskMargin = config['QBIT'].getint('free_disk_margin', 5)
 
 def loadJsonConfig(cfgFile, json_data):
     config = configparser.ConfigParser()
@@ -87,6 +95,9 @@ def loadJsonConfig(cfgFile, json_data):
         config.add_section('QBIT')
     if not config.has_section('TORCP'):
         config.add_section('TORCP')
+    if 'qb_name' in json_data:
+        CONFIG.qbServer = json_data.get('qb_name')
+        config.set('QBIT', 'qbitname', CONFIG.qbName)
     if 'qb_host' in json_data:
         CONFIG.qbServer = json_data.get('qb_host')
         config.set('QBIT', 'server_ip', CONFIG.qbServer)
@@ -108,6 +119,25 @@ def loadJsonConfig(cfgFile, json_data):
     if 'link_dir' in json_data:
         CONFIG.linkDir = json_data.get('link_dir')
         config.set('TORCP', 'linkdir', CONFIG.linkDir)
+    if 'auto_delete' in json_data:
+        CONFIG.autoDelete = json_data.get('auto_delete')
+        config.set('QBIT', 'auto_delete', CONFIG.linkDir)
+    if 'islocal' in json_data:
+        CONFIG.autoDelete = json_data.get('islocal')
+        config.set('QBIT', 'islocal', CONFIG.islocal)
+    if 'default' in json_data:
+        CONFIG.default = json_data.get('default')
+        config.set('QBIT', 'default', CONFIG.default)
+    if 'add_pause' in json_data:
+        CONFIG.add_pause = json_data.get('add_pause')
+        config.set('QBIT', 'add_pause', CONFIG.add_pause)
+    if 'disk_free_margin' in json_data:
+        CONFIG.freeDiskMargin = json_data.get('disk_free_margin')
+        config.set('QBIT', 'disk_free_margin', CONFIG.freeDiskMargin)
+    if 'run_torcp_by_api' in json_data:
+        CONFIG.run_torcp_by_api = json_data.get('run_torcp_by_api')
+        config.set('QBIT', 'run_torcp_by_api', CONFIG.run_torcp_by_api)
+
     if 'bracket' in json_data:
         CONFIG.bracket = json_data.get('bracket')
         config.set('TORCP', 'bracket', CONFIG.bracket)
