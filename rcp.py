@@ -158,14 +158,14 @@ class TorcpCallbackClient:
 #         return dlitem
 
 def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcatidstr=None, tortag=''):
-    if (CONFIG.dockerFrom != CONFIG.dockerTo):
-        if torpath.startswith(CONFIG.dockerFrom) and savepath.startswith(CONFIG.dockerFrom):
+    if (CONFIG.docker_from != CONFIG.docker_to):
+        if torpath.startswith(CONFIG.docker_from) and savepath.startswith(CONFIG.docker_from):
             torpath = torpath.replace(
-                CONFIG.dockerFrom, CONFIG.dockerTo, 1)
+                CONFIG.docker_from, CONFIG.docker_to, 1)
             savepath = savepath.replace(
-                CONFIG.dockerFrom, CONFIG.dockerTo, 1)
+                CONFIG.docker_from, CONFIG.docker_to, 1)
 
-    if not CONFIG.linkDir.strip():
+    if not CONFIG.link_dir.strip():
         logger.warning('config not set: link dir ')
         return 401
     if not CONFIG.torcpdb_url.strip():
@@ -182,9 +182,9 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
         # if not site:
         #     site = abbrevTracker
         if insertHashDir:
-            targetDir = os.path.join(CONFIG.linkDir, torhash)
+            targetDir = os.path.join(CONFIG.link_dir, torhash)
         else:
-            targetDir = CONFIG.linkDir
+            targetDir = CONFIG.link_dir
 
         # 由 tortag 在categoryDirList和TorDownload.auto_cat中找是否配置了自动分类
         extitle = ''

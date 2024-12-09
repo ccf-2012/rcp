@@ -256,7 +256,7 @@ class QbitClient:
         remain_space = size_storage_space - size_left_to_complete
         logger.info(f'   >> (hdd_free) {HumanBytes.format(size_storage_space)} - (uncomplete) {HumanBytes.format(size_left_to_complete)} - '
                     f'(new_tor) {HumanBytes.format(size_new_torrent)} = {HumanBytes.format(remain_space - size_new_torrent)}.')
-        if (remain_space - size_new_torrent) > (CONFIG.freeDiskMargin * 2**30):
+        if (remain_space - size_new_torrent) > (CONFIG.free_disk_margin * 2**30):
             # enough space to add the new torrent
             logger.info(
                 f'   => Enough space : ({HumanBytes.format(size_new_torrent)} / {HumanBytes.format(remain_space)}).')
@@ -286,7 +286,7 @@ class QbitClient:
                         f'- (uncomplete) {HumanBytes.format(size_left_to_complete)} '
                         f'- (new_tor) {HumanBytes.format(size_new_torrent)} '
                         f'= {HumanBytes.format(size_storage_space + space_to_del - size_left_to_complete - size_new_torrent)}')
-            if (size_storage_space + space_to_del - size_left_to_complete - size_new_torrent) > (CONFIG.freeDiskMargin * 2**30):
+            if (size_storage_space + space_to_del - size_left_to_complete - size_new_torrent) > (CONFIG.free_disk_margin * 2**30):
                 for tor_to_del in torrents_to_del:
                     logger.warning(
                         f'   Deleting: {tor_to_del["name"]} to free {HumanBytes.format(tor_to_del["downloaded"])}.')
