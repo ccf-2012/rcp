@@ -26,10 +26,10 @@ class configData():
     bracket = ''
     areadir = ''
     genre = ''
-    genreWithArea = ''
+    genre_with_area = ''
     symbolink = ''
-    extraParam = ''         # config.ini only
-    insertHashDir = False
+    extra_param = ''         # config.ini only
+    insert_hash_dir = False
     categoryDirList = []    # config.ini only
     autoCategory = []       # config.ini only
 
@@ -63,10 +63,10 @@ def readConfig(cfgFile):
         CONFIG.lang = config['TORCP'].get('lang', 'cn,ja,ko')
         CONFIG.areadir = config['TORCP'].get('areadir', '')
         CONFIG.genre = config['TORCP'].get('genre', '')
-        CONFIG.genreWithArea = config['TORCP'].get('genre_with_area', '')
+        CONFIG.genre_with_area = config['TORCP'].get('genre_with_area', '')
         CONFIG.symbolink = config['TORCP'].get('symbolink', '')
-        CONFIG.extraParam = config['TORCP'].get('extra', '')
-        CONFIG.insertHashDir = config['TORCP'].getboolean('insert_hash_dir', False)
+        CONFIG.extra_param = config['TORCP'].get('extra', '')
+        CONFIG.insert_hash_dir = config['TORCP'].getboolean('insert_hash_dir', False)
         CONFIG.torcpdb_url = config['TORCP'].get('torcpdb_url', 'http://127.0.0.1:5009')
         CONFIG.torcpdb_apikey = config['TORCP'].get('torcpdb_apikey', '')
 
@@ -151,17 +151,17 @@ def loadJsonConfig(cfgFile, json_data):
         CONFIG.genre = json_data.get('genre')
         config.set('TORCP', 'genre', CONFIG.genre)
     if 'genre_with_area' in json_data:
-        CONFIG.genreWithArea = json_data.get('genre_with_area')
-        config.set('TORCP', 'genre_with_area', CONFIG.genreWithArea)
+        CONFIG.genre_with_area = json_data.get('genre_with_area')
+        config.set('TORCP', 'genre_with_area', CONFIG.genre_with_area)
     if 'symbolink' in json_data:
         CONFIG.symbolink = json_data.get('symbolink')
         config.set('TORCP', 'symbolink', CONFIG.symbolink)
     if 'extra_param' in json_data:
-        CONFIG.extraParam = json_data.get('extra_param')
-        config.set('TORCP', 'extra', CONFIG.extraParam)
+        CONFIG.extra_param = json_data.get('extra_param')
+        config.set('TORCP', 'extra_param', CONFIG.extra_param)
     if 'insert_hash_dir' in json_data:
-        CONFIG.insertHashDir = json_data.get('insert_hash_dir')
-        config.set('TORCP', 'insert_hash_dir', CONFIG.insertHashDir)
+        CONFIG.insert_hash_dir = json_data.get('insert_hash_dir')
+        config.set('TORCP', 'insert_hash_dir', str(CONFIG.insert_hash_dir))
     # TODO:
     if 'category_dir_list' in json_data:
         category_dir_list = json_data.get('category_dir_list')

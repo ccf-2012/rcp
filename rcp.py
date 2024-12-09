@@ -242,8 +242,8 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
             argv += [CONFIG.areadir]
         if CONFIG.genre:
             argv += ["--genre", CONFIG.genre]
-        if CONFIG.genreWithArea:
-            argv += ["--genre-with-area", CONFIG.genreWithArea]
+        if CONFIG.genre_with_area:
+            argv += ["--genre-with-area", CONFIG.genre_with_area]
         if torimdb:
             argv += ["--imdbid", torimdb]
         if tmdbcatidstr:
@@ -251,8 +251,8 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
         if extitle:
             argv += ["--extitle", extitle]
 
-        if CONFIG.extraParam:
-            exparamList = [item.strip() for item in CONFIG.extraParam.split(',')]
+        if CONFIG.extra_param:
+            exparamList = [item.strip() for item in CONFIG.extra_param.split(',')]
             argv += exparamList
 
         #TODO  如果前面已经匹配到了重定向位置规则，则不加--add-year-dir
@@ -319,7 +319,7 @@ def torcpByHash(torhash):
                 torcat=torinfo.category, 
                 savepath=torinfo.save_path, 
                 abbrevTracker=torinfo.tracker_name, 
-                insertHashDir=CONFIG.insertHashDir,
+                insertHashDir=CONFIG.insert_hash_dir,
                 tmdbcatidstr=None,
                 tortag=torinfo.tags)
         return r
