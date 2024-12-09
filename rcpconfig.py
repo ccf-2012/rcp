@@ -95,35 +95,35 @@ def loadJsonConfig(cfgFile, json_data):
         config.add_section('QBIT')
     if not config.has_section('TORCP'):
         config.add_section('TORCP')
-    if 'qb_name' in json_data:
-        CONFIG.host = json_data.get('qb_name')
-        config.set('QBIT', 'qbitname', CONFIG.qbName)
-    if 'qb_host' in json_data:
-        CONFIG.host = json_data.get('qb_host')
-        config.set('QBIT', 'server_ip', CONFIG.host)
-    if 'qb_port' in json_data:
-        CONFIG.port = json_data.get('qb_port')
+    if 'qbitname' in json_data:
+        CONFIG.qbitname = json_data.get('qbitname')
+        config.set('QBIT', 'qbitname', CONFIG.qbitname)
+    if 'host' in json_data:
+        CONFIG.host = json_data.get('host')
+        config.set('QBIT', 'host', CONFIG.host)
+    if 'port' in json_data:
+        CONFIG.port = json_data.get('port')
         config.set('QBIT', 'port', CONFIG.port)
-    if 'qb_user' in json_data:
-        CONFIG.username = json_data.get('qb_user')
-        config.set('QBIT', 'user', CONFIG.username)
-    if 'qb_pass' in json_data:
-        CONFIG.password = json_data.get('qb_pass')
-        config.set('QBIT', 'pass', CONFIG.password)
+    if 'username' in json_data:
+        CONFIG.username = json_data.get('username')
+        config.set('QBIT', 'username', CONFIG.username)
+    if 'password' in json_data:
+        CONFIG.password = json_data.get('password')
+        config.set('QBIT', 'password', CONFIG.password)
     if 'docker_from' in json_data:
         CONFIG.docker_from = json_data.get('docker_from')
-        config.set('QBIT', 'dockerFrom', CONFIG.docker_from)
+        config.set('QBIT', 'docker_from', CONFIG.docker_from)
     if 'docker_to' in json_data:
         CONFIG.docker_to = json_data.get('docker_to')
-        config.set('QBIT', 'dockerTo', CONFIG.docker_to)
+        config.set('QBIT', 'docker_to', CONFIG.docker_to)
     if 'link_dir' in json_data:
         CONFIG.link_dir = json_data.get('link_dir')
-        config.set('TORCP', 'linkdir', CONFIG.link_dir)
+        config.set('TORCP', 'link_dir', CONFIG.link_dir)
     if 'auto_delete' in json_data:
-        CONFIG.autoDelete = json_data.get('auto_delete')
-        config.set('QBIT', 'auto_delete', CONFIG.link_dir)
+        CONFIG.auto_delete = json_data.get('auto_delete')
+        config.set('QBIT', 'auto_delete', CONFIG.auto_delete)
     if 'islocal' in json_data:
-        CONFIG.autoDelete = json_data.get('islocal')
+        CONFIG.islocal = json_data.get('islocal')
         config.set('QBIT', 'islocal', CONFIG.islocal)
     if 'default' in json_data:
         CONFIG.default = json_data.get('default')
@@ -132,8 +132,8 @@ def loadJsonConfig(cfgFile, json_data):
         CONFIG.add_pause = json_data.get('add_pause')
         config.set('QBIT', 'add_pause', CONFIG.add_pause)
     if 'disk_free_margin' in json_data:
-        CONFIG.free_disk_margin = json_data.get('disk_free_margin')
-        config.set('QBIT', 'disk_free_margin', CONFIG.free_disk_margin)
+        CONFIG.disk_free_margin = json_data.get('disk_free_margin')
+        config.set('QBIT', 'disk_free_margin', CONFIG.disk_free_margin)
     if 'run_torcp_by_api' in json_data:
         CONFIG.run_torcp_by_api = json_data.get('run_torcp_by_api')
         config.set('QBIT', 'run_torcp_by_api', CONFIG.run_torcp_by_api)
