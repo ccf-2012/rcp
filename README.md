@@ -122,6 +122,9 @@ torll_apikey = something
 [TORCP]
 torcpdb_url = http://127.0.0.1:5009
 torcpdb_apikey = somethin_anything
+
+[QBIT]
+qb_name = local  # 这里的名字与 torll 中设置对应
 ```
 
 在作好上述设置后，其它的设置，可以通过 `rcp.py --get-config` 获取

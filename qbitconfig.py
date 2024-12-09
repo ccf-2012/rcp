@@ -4,12 +4,12 @@ import re
 
 @dataclass
 class QbitConfig():
-    id : int
+    # id : int
     qbitname : str 
     host : str
     port : str
     username : str 
-    passwor : str
+    password : str
     docker_from : str 
     docker_to : str
     link_dir : str

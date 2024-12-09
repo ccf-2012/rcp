@@ -307,6 +307,10 @@ def torcpByHash(torhash):
         )
         qbclient = QbitClient(qbconfig)
         torinfo = qbclient.get_torrent_by_hash(torhash)
+        if not torinfo:
+            logger.error('qbit not connected.')
+            return 404
+        
         logger.info(f'调用 torcp: {torinfo.content_path}')
         r = runTorcp(
                 torpath=torinfo.content_path, 
@@ -326,9 +330,13 @@ def torcpByHash(torhash):
 
 def getTorllConfig():
     try:
+        json_data = {
+            'qbitname': CONFIG.qbitname
+        }
         response = requests.get(
             CONFIG.torll_url+ "/api/getconfig", 
-            headers=myheader())
+            headers=myheader(),
+            json=json_data)
         response.raise_for_status()  # 如果响应状态码不是200，抛出异常
         loadJsonConfig(ARGS.config, response.json())
         return 
