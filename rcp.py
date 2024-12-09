@@ -157,7 +157,7 @@ class TorcpCallbackClient:
 #             qbid=torcat).first()
 #         return dlitem
 
-def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcatidstr=None, tortag=''):
+def runTorcp(torpath, torhash, torsize, torcat, savepath, abbrevTracker, insertHashDir, tmdbcatidstr=None, tortag=''):
     if (CONFIG.docker_from != CONFIG.docker_to):
         if torpath.startswith(CONFIG.docker_from) and savepath.startswith(CONFIG.docker_from):
             torpath = torpath.replace(
@@ -179,8 +179,8 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, insertHashDir, tmdbcat
         # TODO: get site, infolink from TorDownload
         rootdir, site_id_imdb = getSiteIdDirName(torpath, savepath)
         site, siteid, torimdb = parseSiteId(site_id_imdb, '')
-        # if not site:
-        #     site = abbrevTracker
+        if not site:
+            site = abbrevTracker
         if insertHashDir:
             targetDir = os.path.join(CONFIG.link_dir, torhash)
         else:
@@ -314,7 +314,7 @@ def torcpByHash(torhash):
         logger.info(f'调用 torcp: {torinfo.content_path}')
         r = runTorcp(
                 torpath=torinfo.content_path, 
-                torhash=torinfo.torhash, 
+                torhash=torinfo.hash, 
                 torsize=torinfo.size, 
                 torcat=torinfo.category, 
                 savepath=torinfo.save_path, 
