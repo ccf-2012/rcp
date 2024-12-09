@@ -82,8 +82,11 @@ def readConfig(cfgFile):
         CONFIG.docker_to = config['QBIT'].get('dockerTo', '')
 
         CONFIG.dryrun = config['QBIT'].getboolean('dryrun', False)
-        CONFIG.addPause = config['QBIT'].getboolean('add_pause', False)
-        CONFIG.autoDelete = config['QBIT'].getboolean('auto_delete', False)
+        CONFIG.add_pause = config['QBIT'].getboolean('add_pause', False)
+        CONFIG.auto_delete = config['QBIT'].getboolean('auto_delete', False)
+        CONFIG.default = config['QBIT'].getboolean('default', True)
+        CONFIG.islocal = config['QBIT'].getboolean('islocal', True)
+        CONFIG.run_torcp_by_api = config['QBIT'].getboolean('run_torcp_by_api', True)
 
         CONFIG.rcpshfile = os.path.join(os.path.dirname(__file__), 'rcp.sh')
         CONFIG.free_disk_margin = config['QBIT'].getint('free_disk_margin', 5)
@@ -102,7 +105,7 @@ def loadJsonConfig(cfgFile, json_data):
         CONFIG.host = json_data.get('host')
         config.set('QBIT', 'host', CONFIG.host)
     if 'port' in json_data:
-        CONFIG.port = json_data.get('port')
+        CONFIG.port = str(json_data.get('port'))
         config.set('QBIT', 'port', CONFIG.port)
     if 'username' in json_data:
         CONFIG.username = json_data.get('username')
@@ -121,22 +124,22 @@ def loadJsonConfig(cfgFile, json_data):
         config.set('TORCP', 'link_dir', CONFIG.link_dir)
     if 'auto_delete' in json_data:
         CONFIG.auto_delete = json_data.get('auto_delete')
-        config.set('QBIT', 'auto_delete', CONFIG.auto_delete)
+        config.set('QBIT', 'auto_delete', str(CONFIG.auto_delete))
     if 'islocal' in json_data:
         CONFIG.islocal = json_data.get('islocal')
-        config.set('QBIT', 'islocal', CONFIG.islocal)
+        config.set('QBIT', 'islocal', str(CONFIG.islocal))
     if 'default' in json_data:
         CONFIG.default = json_data.get('default')
-        config.set('QBIT', 'default', CONFIG.default)
+        config.set('QBIT', 'default', str(CONFIG.default))
     if 'add_pause' in json_data:
         CONFIG.add_pause = json_data.get('add_pause')
-        config.set('QBIT', 'add_pause', CONFIG.add_pause)
+        config.set('QBIT', 'add_pause', str(CONFIG.add_pause))
     if 'disk_free_margin' in json_data:
-        CONFIG.disk_free_margin = json_data.get('disk_free_margin')
+        CONFIG.disk_free_margin = str(json_data.get('disk_free_margin'))
         config.set('QBIT', 'disk_free_margin', CONFIG.disk_free_margin)
     if 'run_torcp_by_api' in json_data:
         CONFIG.run_torcp_by_api = json_data.get('run_torcp_by_api')
-        config.set('QBIT', 'run_torcp_by_api', CONFIG.run_torcp_by_api)
+        config.set('QBIT', 'run_torcp_by_api', str(CONFIG.run_torcp_by_api))
 
     if 'bracket' in json_data:
         CONFIG.bracket = json_data.get('bracket')
