@@ -207,7 +207,7 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, abbrevTracker, insertH
                     extitle = json_data['extitle']
                 if 'imdb_id' in json_data:
                     imdb_id = json_data['imdb_id']
-                    if imdb_id.startswith('tt'):
+                    if imdb_id and imdb_id.startswith('tt'):
                         torimdb = imdb_id
         else:
             logger.error('no qbid set in torrent category.')
