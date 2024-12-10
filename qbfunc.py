@@ -89,7 +89,8 @@ class QbitClient:
 
         torrent = torlist[0]
         tracker = self._get_first_tracker(torrent)
-        tags = torrent.tags.split(",") if torrent.tags else []
+        tags = torrent.tags
+        # tags = torrent.tags.split(",") if torrent.tags else []
         
         return TorrentInfo(
             content_path=torrent.content_path,
