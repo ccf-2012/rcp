@@ -55,7 +55,7 @@ def readConfig(cfgFile):
             CONFIG.autoCategory.append((key, value))
 
     if 'TORCP' in config:
-        CONFIG.link_dir = config['TORCP'].get('linkdir', '')
+        CONFIG.link_dir = config['TORCP'].get('link_dir', '')
         CONFIG.bracket = config['TORCP'].get('bracket', '')
         # if not CONFIG.bracket.startswith('--'):
         #     CONFIG.bracket = '--' + CONFIG.bracket
