@@ -17,6 +17,45 @@ cd rcp
 pip install -r requirements.txt
 ```
 
+## 从 torll 服务端下载配置
+* 首先建立一个 `rcpconfig.ini` 文件，内容如下：
+* 其中 torll 和 torcpdb 服务的配置项，需要手工设置：
+```ini
+[TORLL]
+torll_url = http://127.0.0.1:5006
+torll_apikey = something
+
+[TORCP]
+torcpdb_url = http://127.0.0.1:5009
+torcpdb_apikey = somethin_anything
+
+[QBIT]
+qb_name = local  # 这里的名字与 torll 中设置对应
+```
+
+* 在作好上述设置后，其它的设置，可以通过 `rcp.py --get-config` 获取
+```sh
+python3 rcp.py --get-config
+```
+* 没有报错的话，检查 `rcpconfig.ini` 文件内容
+
+
+## 由 torll 设置种子下载完成后运行命令
+* torll 的 qbittorrent 设置中，对远程的下载器进行设置
+* 检查其设置的参数，特别是运行程序的路径是否正确
+* 比如 torll 会设置远程 qbit 的种子下载完成后命令为：
+```sh
+sh rcp.sh "%I"
+```
+* 多数情况需要手工设置其中的绝对路径，比如改成：
+```sh
+sh /share/CACHEDEV1_DATA/Download/rcp/rcp.sh "%I"
+```
+* 而其中的 rcp.sh 内容需要手工编写，也应当对应绝对路径，以及python环境，如：
+```
+#!/bin/bash
+/bin/bash -c ". /etc/profile.d/python3.bash; exec python3 /share/CACHEDEV1_DATA/Download/rcp/rcp.py -I $1 >>/share/CACHEDEV1_DATA/Download/rcp2.log 2>>/share/CACHEDEV1_DATA/Download/rcp2e.log"
+```
 
 ## usage
 ```
@@ -69,6 +108,7 @@ options:
 ```sh
 python rcp.py -F "%F" -I "%I" -D "%D" -L "%L" -G "%G" -Z "%Z" --hash-dir
 ```
+> 这样的调用方式下，不需要连接下载器，也不需要 `qbittorrent-api` 依赖
 
 * 为方便，加了qbfunc.py，通过 qbittorrent-api 获取信息，可以如下调用：
 ```sh
@@ -112,22 +152,4 @@ dockerfrom = /downloads
 dockerto = /volume1/video/downloads
 auto_delete = False
 ```
-
-其中以下分别 torll 和 torcpdb 服务的配置项，需要手工设置：
-```ini
-[TORLL]
-torll_url = http://127.0.0.1:5006
-torll_apikey = something
-
-[TORCP]
-torcpdb_url = http://127.0.0.1:5009
-torcpdb_apikey = somethin_anything
-
-[QBIT]
-qb_name = local  # 这里的名字与 torll 中设置对应
-```
-
-在作好上述设置后，其它的设置，可以通过 `rcp.py --get-config` 获取
-
-
 
