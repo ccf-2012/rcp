@@ -18,8 +18,7 @@ pip install -r requirements.txt
 ```
 
 ## 从 torll 服务端下载配置
-* 首先建立一个 `rcpconfig.ini` 文件，内容如下：
-* 其中 torll 和 torcpdb 服务的配置项，需要手工设置：
+* 首先建立一个 `rcpconfig.ini` 文件，内容如下， 其中 torll 和 torcpdb 服务的配置项，需要手工设置：
 ```ini
 [TORLL]
 torll_url = http://127.0.0.1:5006
