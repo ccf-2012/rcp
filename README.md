@@ -5,18 +5,123 @@
 
 
 ## 安装
-* rcp.py 需要依赖 sibling 目录中的 torcp2
+* rcp.py 需要依赖邻目录中的 torcp2
 ```sh
 git clone https://github.com/ccf-2012/rcp.git
 git clone https://github.com/ccf-2012/torcp2.git
-
 ```
+
+  
 * 安装依赖
 ```sh
 cd rcp
 pip install -r requirements.txt
 ```
+* 或通过 rye 进行依赖管理
+* install rye: https://rye.astral.sh/guide/installation/
+```sh
+cd rcp
+rye init 
+rye sync
+python -m ensurepip
+python -m pip install -r requirements.txt
+```
 
+## torll 与 torcpdb 服务端
+* 服务端需要安装 torll 与 torcpdb
+
+
+### torll
+* 安装依赖
+```sh
+cd torll
+rye init 
+rye sync
+python -m ensurepip
+python -m pip install -r requirements.txt
+```
+* 生成初始密码
+```sh 
+screen 
+# 生成初始密码
+python app.py -G
+# 记下生成的用户名和密码，在 config.ini 中可手工修改
+```
+* 在 config.ini 中加一行：
+```ini
+client_api_key = something
+```
+* 启动 torll
+```
+python app.py
+```
+
+### torcpdb
+
+* 编写一个 `config.ini`
+```ini
+[TMDB]
+tmdb_api_key = _your_tmdb_api_key_  # 配置 TMDb 的 api key
+tmdb_lang = zh-CN
+
+[AUTH]
+user = ccf          # 登陆 torcpdb 的用户名 / 密码
+pass = something
+client_api_key = something  # 供 torll 用的 api key
+```
+* 启动 torcpdb
+```sh
+screen 
+python app.py 
+```
+
+## 使用
+### 检查配置
+1. 记录下 torcpdb 的 apikey 和 torll 的 apikey
+2. 检查 torll 中配置的 torcpdb 的 apikey 是否正确
+3. 检查 rcp 中配置的 torll, torcpdb 的 apikey 是否正确
+
+### torll 中的设置
+1. 设置-torcp设置，各项参数设置
+2. 设置-qbittorrent设置，添加 qbit，注意名称应与 rcp 中 rcpconfig.ini 中名字对应
+3. 站点-站点设置，添加站点
+4. RSS-RSS任务，设置RSS （rssconfig.json）
+
+### 远程 rcp 机器上配置
+*  在作好上述设置后，在远程机器上的rcp目录中可进行配置
+
+```sh
+cd rcp
+rye init 
+rye sync
+python -m ensurepip
+python -m pip install -r requirements.txt
+```
+
+* 编写 rcpconfig.ini 其中以下分别 torll 和 torcpdb 服务的配置项，需要手工设置：
+```ini
+[TORLL]
+torll_url = http://127.0.0.1:5006
+torll_apikey = something
+
+[TORCP]
+torcpdb_url = http://127.0.0.1:5009
+torcpdb_apikey = somethin_anything
+
+[QBIT]
+qbitname = qb51  # 这里的名字与 torll 中设置对应
+```
+
+* 通过 `rcp.py --get-config` 获取参数
+```sh
+cd /root/rcp
+python rcp.py --get-config
+```
+
+## 检查远程 rcp 配置
+1. qbittorent 的运行命令
+2. rcp.sh 的内容
+3. rcpconfig.ini 中各参数
 
 ## usage
 ```
@@ -112,22 +217,4 @@ dockerfrom = /downloads
 dockerto = /volume1/video/downloads
 auto_delete = False
 ```
-
-其中以下分别 torll 和 torcpdb 服务的配置项，需要手工设置：
-```ini
-[TORLL]
-torll_url = http://127.0.0.1:5006
-torll_apikey = something
-
-[TORCP]
-torcpdb_url = http://127.0.0.1:5009
-torcpdb_apikey = somethin_anything
-
-[QBIT]
-qb_name = local  # 这里的名字与 torll 中设置对应
-```
-
-在作好上述设置后，其它的设置，可以通过 `rcp.py --get-config` 获取
-
-
 
