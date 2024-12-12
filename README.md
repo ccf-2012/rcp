@@ -174,6 +174,7 @@ options:
 ```sh
 python rcp.py -F "%F" -I "%I" -D "%D" -L "%L" -G "%G" -Z "%Z" --hash-dir
 ```
+> 这样的调用方式下，不需要连接下载器，也不需要 `qbittorrent-api` 依赖
 
 * 为方便，加了qbfunc.py，通过 qbittorrent-api 获取信息，可以如下调用：
 ```sh

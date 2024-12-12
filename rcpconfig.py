@@ -55,31 +55,31 @@ def readConfig(cfgFile):
             CONFIG.autoCategory.append((key, value))
 
     if 'TORCP' in config:
-        CONFIG.link_dir = config['TORCP'].get('linkdir', '')
+        CONFIG.link_dir = config['TORCP'].get('link_dir', '')
         CONFIG.bracket = config['TORCP'].get('bracket', '')
         # if not CONFIG.bracket.startswith('--'):
         #     CONFIG.bracket = '--' + CONFIG.bracket
         # CONFIG.tmdbLang = config['TORCP'].get('tmdb_lang', 'en-US')
-        CONFIG.lang = config['TORCP'].get('lang', 'cn,ja,ko')
+        # CONFIG.lang = config['TORCP'].get('lang', 'cn,ja,ko')
         CONFIG.areadir = config['TORCP'].get('areadir', '')
         CONFIG.genre = config['TORCP'].get('genre', '')
         CONFIG.genre_with_area = config['TORCP'].get('genre_with_area', '')
         CONFIG.symbolink = config['TORCP'].get('symbolink', '')
-        CONFIG.extra_param = config['TORCP'].get('extra', '')
+        CONFIG.extra_param = config['TORCP'].get('extra_param', '')
         CONFIG.insert_hash_dir = config['TORCP'].getboolean('insert_hash_dir', False)
         CONFIG.torcpdb_url = config['TORCP'].get('torcpdb_url', 'http://127.0.0.1:5009')
         CONFIG.torcpdb_apikey = config['TORCP'].get('torcpdb_apikey', '')
 
     if 'QBIT' in config:
         CONFIG.qbitname = config['QBIT'].get('qbitname', 'this')
-        CONFIG.host = config['QBIT'].get('server_ip', '127.0.0.1')
+        CONFIG.host = config['QBIT'].get('host', '127.0.0.1')
         CONFIG.port = config['QBIT'].get('port', '')
-        CONFIG.username = config['QBIT'].get('user', '')
-        CONFIG.password = config['QBIT'].get('pass', '')
+        CONFIG.username = config['QBIT'].get('username', '')
+        CONFIG.password = config['QBIT'].get('password', '')
 
         # CONFIG.apiRunProgram = config['QBIT'].get('apirun', 'False')
-        CONFIG.docker_from = config['QBIT'].get('dockerFrom', '')
-        CONFIG.docker_to = config['QBIT'].get('dockerTo', '')
+        CONFIG.docker_from = config['QBIT'].get('docker_from', '')
+        CONFIG.docker_to = config['QBIT'].get('docker_to', '')
 
         CONFIG.dryrun = config['QBIT'].getboolean('dryrun', False)
         CONFIG.add_pause = config['QBIT'].getboolean('add_pause', False)
