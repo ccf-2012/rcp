@@ -123,6 +123,18 @@ python rcp.py --get-config
 2. rcp.sh 的内容
 3. rcpconfig.ini 中各参数
 
+### rcp.sh
+* QNAP 例子，需要source 某个环境后运行，例如 venv
+```sh
+/bin/bash -c ". /etc/profile.d/python3.bash; exec python3 /share/CACHEDEV1_DATA/Download/rcp/rcp.py -I $1 >>/share/CACHEDEV1_DATA/Download/rcp2.log 2>>/share/CACHEDEV1_DATA/Download/rcp2e.log"
+```
+* rye 目录中运行
+```sh
+#/usr/bin/bash
+cd /volume1/servers/rcp
+python rcp.py -I $1  >>rcp.log 2>>rcp2e.log
+```
+
 ## usage
 ```
 python rcp.py -h
