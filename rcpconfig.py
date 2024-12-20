@@ -86,7 +86,7 @@ def readConfig(cfgFile):
         CONFIG.auto_delete = config['QBIT'].getboolean('auto_delete', False)
         CONFIG.default = config['QBIT'].getboolean('default', True)
         CONFIG.islocal = config['QBIT'].getboolean('islocal', True)
-        CONFIG.run_torcp_by_api = config['QBIT'].getboolean('run_torcp_by_api', True)
+        CONFIG.run_torcp_by_api = config['QBIT'].getboolean('run_torcp_by_api', False)
 
         CONFIG.rcpshfile = os.path.join(os.path.dirname(__file__), 'rcp.sh')
         CONFIG.free_disk_margin = config['QBIT'].getint('free_disk_margin', 5)

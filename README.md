@@ -135,6 +135,39 @@ cd /volume1/servers/rcp
 python rcp.py -I $1  >>rcp.log 2>>rcp2e.log
 ```
 
+## docker 中的 qbittorrent
+1. 进入 docker 后台 shell
+```sh
+docker ps # 查看 qbit 的 docker 名
+docker exec -it linuxserver-qbittorrent445 /bin/bash # 进入后台
+```
+2. 一般为 Alpine Linux，有Python 3 请检查
+```sh
+python -v
+```
+3. 安装依赖
+* 假设 rcp 代码放在 /downloads 目录下
+```sh
+cd /downloads/rcp/  
+python3 -m pip install -r requirement.txt
+```
+* 检查 rcp 依赖已安装成功
+```sh
+python rcp.py -h
+```
+4. 相应设置此下载器的位置
+* `硬链目标位置（运行 rcp 的主机上的位置）` 应为 docker 中的地址： `/downloads`
+* `种子下载完成运行程序` 应为 docker 中的地址： `sh /downloads/rcp/rcp.sh`
+* 配置docker的映射，如： /downloads 映射为 /volume1/video/download
+
+5. 检查 rcp.sh 中的路径，也应是 docker 中的路径
+* `cat rcp.sh`
+```sh
+#!/bin/sh
+cd /downloads/rcp
+python3 /downloads/rcp/rcp.py  -I $1 >>rcp2.log 2>>rcp2e.log
+```
+
 ## usage
 ```
 python rcp.py -h
