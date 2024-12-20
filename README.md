@@ -158,7 +158,7 @@ python rcp.py -h
 4. 相应设置此下载器的位置
 * `硬链目标位置（运行 rcp 的主机上的位置）` 应为 docker 中的地址： `/downloads`
 * `种子下载完成运行程序` 应为 docker 中的地址： `sh /downloads/rcp/rcp.sh`
-* 配置docker的映射，如： /downloads 映射为 /volume1/video/download
+* 如果在docker中运行，则不应~~配置docker的映射，如： /downloads 映射为 /volume1/video/download~~
 
 5. 检查 rcp.sh 中的路径，也应是 docker 中的路径
 * `cat rcp.sh`
@@ -254,13 +254,12 @@ torcpdb_apikey = somethin_anything
 特摄 = 特摄
 
 [QBIT]
-server_ip = 192.168.5.6
+host = 192.168.5.6
 port = 15190
-user = admin
-pass = Setup194
-apirun = True
-dockerfrom = /downloads
-dockerto = /volume1/video/downloads
+username = admin
+password = Setup194
+docker_from = /downloads
+docker_to = /volume1/video/downloads
 auto_delete = False
 ```
 

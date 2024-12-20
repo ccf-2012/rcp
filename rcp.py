@@ -338,7 +338,9 @@ def getTorllConfig():
             headers=myheader(),
             json=json_data)
         response.raise_for_status()  # 如果响应状态码不是200，抛出异常
-        loadJsonConfig(ARGS.config, response.json())
+        data = response.json()  # 假设这是解析 JSON 数据的代码
+        print("Server returned JSON data:", data)  # 插入打印语句
+        loadJsonConfig(ARGS.config, data)
         return 
     except requests.RequestException as e:
         print(f"查询失败: {str(e)}")
