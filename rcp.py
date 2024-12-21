@@ -107,7 +107,7 @@ def query_torll_dlinfo(qbid):
             headers=myheader(),
             json=json_data
         )
-        response.raise_for_status()  # 如果响应状态码不是200，抛出异常
+        # response.raise_for_status()  # 如果响应状态码不是200，抛出异常
         return response.json()
     except requests.RequestException as e:
         print(f"查询失败: {str(e)}")
@@ -120,7 +120,7 @@ def post_item_torcped(json_data):
             headers=myheader(),
             json=json_data
         )
-        response.raise_for_status()  # 如果响应状态码不是200，抛出异常
+        # response.raise_for_status()  # 如果响应状态码不是200，抛出异常
         return response.json()
     except requests.RequestException as e:
         print(f"查询失败: {str(e)}")
