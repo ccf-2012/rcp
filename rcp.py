@@ -128,12 +128,13 @@ def post_item_torcped(json_data):
 
 
 class TorcpCallbackClient:
-    def __init__(self, torimdb, torhash, torsize, relocatedir, tordownload_qbid):
+    def __init__(self, torimdb, torhash, torsize, relocatedir, tordownload_qbid, site):
         self.torimdb = torimdb
         self.torhash = torhash
         self.torsize = torsize
         self.relocatedir = relocatedir
         self.tordownload_qbid = tordownload_qbid
+        self.site = site
 
     def onOneItemTorcped(self, targetDir, mediaName, tmdbIdStr, tmdbCat, tmdbTitle, tmdbobj=None):
         # logger.info("%s %s %s %s " % (targetDir, mediaName, tmdbIdStr, tmdbCat))
@@ -147,7 +148,9 @@ class TorcpCallbackClient:
             'tmdb_id' : tmdbIdStr,
             'tmdb_cat' : tmdbCat,
             'tmdb_title' : tmdbTitle,
-            'torsize' : self.torsize
+            'torsize' : self.torsize,
+            'site' : self.site,
+            'torimdb' : self.torimdb
         }
         logger.info(json_data)
         post_item_torcped(json_data)
@@ -270,7 +273,8 @@ def runTorcp(torpath, torhash, torsize, torcat, savepath, abbrevTracker, insertH
                 torhash=torhash.strip(), 
                 torsize=tryint(torsize.strip()), 
                 relocatedir=relocatedir, 
-                tordownload_qbid=tordownload_qbid)
+                tordownload_qbid=tordownload_qbid,
+                site=site)
         o = Torcp()
         o.main(argv, eo)
 
