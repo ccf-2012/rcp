@@ -138,6 +138,7 @@ class TorcpCallbackClient:
     def onOneItemTorcped(self, targetDir, mediaName, tmdbIdStr, tmdbCat, tmdbTitle, tmdbobj=None):
         # logger.info("%s %s %s %s " % (targetDir, mediaName, tmdbIdStr, tmdbCat))
         json_data = {
+            'qbitname': CONFIG.qbitname,
             'qbid': self.tordownload_qbid,
             'torhash' : self.torhash,
             'relocate_dir': self.relocatedir,
@@ -145,8 +146,10 @@ class TorcpCallbackClient:
             'media_name' : mediaName,
             'tmdb_id' : tmdbIdStr,
             'tmdb_cat' : tmdbCat,
-            'tmdb_title' : tmdbTitle
+            'tmdb_title' : tmdbTitle,
+            'torsize' : self.torsize
         }
+        logger.info(json_data)
         post_item_torcped(json_data)
         self.tmdbParser = tmdbobj
 
