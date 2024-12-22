@@ -9,6 +9,7 @@ __pycache__/
 !siteconfig.json
 .vscode/
 *config.ini
+!rcpconfig.ini
 rcp.sh
 *.sh
 

@@ -158,7 +158,7 @@ python rcp.py -h
 4. 相应设置此下载器的位置
 * `硬链目标位置（运行 rcp 的主机上的位置）` 应为 docker 中的地址： `/downloads`
 * `种子下载完成运行程序` 应为 docker 中的地址： `sh /downloads/rcp/rcp.sh`
-* 如果在docker中运行，则不应~~配置docker的映射，如： /downloads 映射为 /volume1/video/download~~
+* 如果在docker中运行，则 **不应** 配置docker的映射 ~~，如： /downloads 映射为 /volume1/video/download~~
 
 5. 检查 rcp.sh 中的路径，也应是 docker 中的路径
 * `cat rcp.sh`
@@ -167,6 +167,8 @@ python rcp.py -h
 cd /downloads/rcp
 python3 /downloads/rcp/rcp.py  -I $1 >>rcp2.log 2>>rcp2e.log
 ```
+
+------------
 
 ## usage
 ```
@@ -231,18 +233,19 @@ python rcp.py -I "%I"
 ```ini
 [TORLL]
 torll_url = http://127.0.0.1:5006
-torll_apikey = something
+torll_apikey = torll_apikey
 
 [TORCP]
-linkdir = /volume1/video/downloads/emby
-bracket = --plex-bracket
-symbolink =
-genre = 动画,纪录,真人秀,脱口秀,音乐会
-mbrootdir = /volume1/video/downloads/emby
-notifyplex = True
-areadir = --sep-area5
 torcpdb_url = http://127.0.0.1:5009
-torcpdb_apikey = somethin_anything
+torcpdb_apikey = torcpdb_apikey
+link_dir = /volume1/emby
+bracket = --plex-bracket
+areadir = --sep-area5
+genre = 动画,纪录,真人秀,脱口秀
+genre_with_area =
+symbolink =
+extra_param =
+insert_hash_dir = False
 
 [CATEGORY_DIR]
 未完结 = 未完结
@@ -254,12 +257,10 @@ torcpdb_apikey = somethin_anything
 特摄 = 特摄
 
 [QBIT]
-host = 192.168.5.6
+qbitname = qb10
+host = 127.0.0.1
 port = 15190
 username = admin
-password = Setup194
-docker_from = /downloads
-docker_to = /volume1/video/downloads
-auto_delete = False
+password = qbit_password
 ```
 
