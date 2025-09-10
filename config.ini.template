@@ -1,0 +1,11 @@
+[torll]
+# torll2服务的URL地址
+url = http://127.0.0.1:8000/api/v1/torcp/info
+# torll2 服务的API Key
+api_key = your_secret_api_key
+qbitname = qb10
+
+
+[emby]
+# Emby/Jellyfin媒体库的根目录
+root_path = /path/to/your/media/library

@@ -1,266 +1,116 @@
-# rcp.py 
-* 在 qbit 下载完成后的脚本中，调用本 rcp.py,
-* rcp.py 向 torll 请求所需要的信息，然后本地执行 torcp 刮削硬链
-* 完成后向 torll 报告入库
+# rcp.py - 自动化媒体库整理工具
 
+这是一个 Python 脚本，旨在与 qBittorrent 和 torll2 服务集成，实现下载完成后自动整理媒体文件到 Emby/Jellyfin 媒体库。
 
-## 安装
-* rcp.py 需要依赖邻目录中的 torcp2
+## 核心功能
+
+- **自动触发**: 在 qBittorrent 下载完成后自动执行。
+- **智能识别**: 调用 `torll2` API 获取下载内容的详细媒体信息（如电影、电视剧、标题、年份等）。
+- **创建硬链接**: 根据识别出的媒体信息，在你的媒体库目录中创建结构化的目录和硬链接，避免重复占用磁盘空间。
+- **支持电影和电视剧**: 能够正确处理电影和电视剧，并将它们归入不同的目录结构。
+
+## 工作流程
+
+1.  **qBittorrent** 下载完成一个任务。
+2.  qBittorrent 调用 `rcp.sh` 脚本，并将种子路径、HASH等信息作为参数传递。
+3.  `rcp.sh` 脚本执行 `rcp.py`。
+4.  `rcp.py` 读取 `config.ini` 配置，并携带种子信息请求 `torll` API。
+5.  `torll` API 返回刮削好的媒体信息 (TMDB/TVDB 信息)。
+6.  `rcp.py` 根据返回的信息，在 `config.ini` 中指定的媒体库根目录 (`root_path`) 下创建硬链接。
+
+## 环境要求
+
+- Python 3.10+ (脚本内建 `urllib`，无需安装 `requests`)
+
+## 安装与配置
+
+### 1. 克隆项目
+
 ```sh
 git clone https://github.com/ccf-2012/rcp.git
-git clone https://github.com/ccf-2012/torcp2.git
-```
-
-  
-* 安装依赖
-```sh
 cd rcp
-pip install -r requirements.txt
-```
-* 或通过 rye 进行依赖管理
-* install rye: https://rye.astral.sh/guide/installation/
-```sh
-cd rcp
-rye init 
-rye sync
-python -m ensurepip
-python -m pip install -r requirements.txt
 ```
 
-## torll 与 torcpdb 服务端
-* 服务端需要安装 torll 与 torcpdb
+### 2. 配置 `config.ini`
 
+复制模板文件 `config.ini.template` 并重命名为 `config.ini`，然后根据你的环境修改内容。
 
-### torll
-* 安装依赖
-```sh
-cd torll
-rye init 
-rye sync
-python -m ensurepip
-python -m pip install -r requirements.txt
-```
-* 生成初始密码
-```sh 
-screen 
-# 生成初始密码
-python app.py -G
-# 记下生成的用户名和密码，在 config.ini 中可手工修改
-```
-* 在 config.ini 中加一行：
 ```ini
-client_api_key = something
-```
-* 启动 torll
-```
-python app.py
-```
-
-### torcpdb
-
-* 编写一个 `config.ini`
-```ini
-[TMDB]
-tmdb_api_key = _your_tmdb_api_key_  # 配置 TMDb 的 api key
-tmdb_lang = zh-CN
-
-[AUTH]
-user = ccf          # 登陆 torcpdb 的用户名 / 密码
-pass = something
-client_api_key = something  # 供 torll 用的 api key
-```
-* 启动 torcpdb
-```sh
-screen 
-python app.py 
-```
-
-## 使用
-### 检查配置
-1. 记录下 torcpdb 的 apikey 和 torll 的 apikey
-2. 检查 torll 中配置的 torcpdb 的 apikey 是否正确
-3. 检查 rcp 中配置的 torll, torcpdb 的 apikey 是否正确
-
-### torll 中的设置
-1. 设置-torcp设置，各项参数设置
-2. 设置-qbittorrent设置，添加 qbit，注意名称应与 rcp 中 rcpconfig.ini 中名字对应
-3. 站点-站点设置，添加站点
-4. RSS-RSS任务，设置RSS （rssconfig.json）
-
-### 远程 rcp 机器上配置
-*  在作好上述设置后，在远程机器上的rcp目录中可进行配置
-
-```sh
-cd rcp
-rye init 
-rye sync
-python -m ensurepip
-python -m pip install -r requirements.txt
-```
-
-* 编写 rcpconfig.ini 其中以下分别 torll 和 torcpdb 服务的配置项，需要手工设置：
-```ini
-[TORLL]
-torll_url = http://127.0.0.1:5006
-torll_apikey = something
-
-[TORCP]
-torcpdb_url = http://127.0.0.1:5009
-torcpdb_apikey = somethin_anything
-
-[QBIT]
-qbitname = qb51  # 这里的名字与 torll 中设置对应
-```
-
-* 通过 `rcp.py --get-config` 获取参数
-```sh
-cd /root/rcp
-python rcp.py --get-config
-```
-
-## 检查远程 rcp 配置
-1. qbittorent 的运行命令
-2. rcp.sh 的内容
-3. rcpconfig.ini 中各参数
-
-### rcp.sh
-* QNAP 例子，需要source 某个环境后运行，例如 venv
-```sh
-/bin/bash -c ". /etc/profile.d/python3.bash; exec python3 /share/CACHEDEV1_DATA/Download/rcp/rcp.py -I $1 >>/share/CACHEDEV1_DATA/Download/rcp2.log 2>>/share/CACHEDEV1_DATA/Download/rcp2e.log"
-```
-* rye 目录中运行
-```sh
-#/usr/bin/bash
-cd /volume1/servers/rcp
-python rcp.py -I $1  >>rcp.log 2>>rcp2e.log
-```
-
-## docker 中的 qbittorrent
-1. 进入 docker 后台 shell
-```sh
-docker ps # 查看 qbit 的 docker 名
-docker exec -it linuxserver-qbittorrent445 /bin/bash # 进入后台
-```
-2. 一般为 Alpine Linux，有Python 3 请检查
-```sh
-python -v
-```
-3. 安装依赖
-* 假设 rcp 代码放在 /downloads 目录下
-```sh
-cd /downloads/rcp/  
-python3 -m pip install -r requirement.txt
-```
-* 检查 rcp 依赖已安装成功
-```sh
-python rcp.py -h
-```
-4. 相应设置此下载器的位置
-* `硬链目标位置（运行 rcp 的主机上的位置）` 应为 docker 中的地址： `/downloads`
-* `种子下载完成运行程序` 应为 docker 中的地址： `sh /downloads/rcp/rcp.sh`
-* 如果在docker中运行，则 **不应** 配置docker的映射 ~~，如： /downloads 映射为 /volume1/video/download~~
-
-5. 检查 rcp.sh 中的路径，也应是 docker 中的路径
-* `cat rcp.sh`
-```sh
-#!/bin/sh
-cd /downloads/rcp
-python3 /downloads/rcp/rcp.py  -I $1 >>rcp2.log 2>>rcp2e.log
-```
-
-------------
-
-## usage
-```
-python rcp.py -h
-usage: rcp.py [-h] [-F FULL_PATH] [-I INFO_HASH] [-D SAVE_PATH] [-T TRACKER] [-L CATEGORY] [-G TAGS] [-Z SIZE] [--hash-dir] [--tmdbcatid TMDBCATID]
-              [--auto-resume-delete] [-C CONFIG]
-
-wrapper to TORCP to save log in sqlite db.
-
-options:
-  -h, --help            show this help message and exit
-  -F FULL_PATH, --full-path FULL_PATH
-                        full torrent save path.
-  -I INFO_HASH, --info-hash INFO_HASH
-                        info hash of the torrent.
-  -D SAVE_PATH, --save-path SAVE_PATH
-                        qbittorrent save path.
-  -T TRACKER, --tracker TRACKER
-                        torrent tracker.
-  -L CATEGORY, --category CATEGORY
-                        category of the torrent.
-  -G TAGS, --tags TAGS  tags of the torrent.
-  -Z SIZE, --size SIZE  size of the torrent.
-  --hash-dir            create hash dir.
-  --tmdbcatid TMDBCATID
-                        specify TMDb as tv-12345/m-12345.
-  --auto-resume-delete  try to resume paused torrent when disk space available.
-  -C CONFIG, --config CONFIG
-                        config file.
-```
-
-## qbit 中的设置
-* 在 qbit 完成后执行脚本，可以输出以下参数：
-```
-%N：Torrent 名称
-%L：分类
-%G：标签（以逗号分隔）
-%F：内容路径（与多文件 torrent 的根目录相同）
-%R：根目录（第一个 torrent 的子目录路径）
-%D：保存路径
-%C：文件数
-%Z：Torrent 大小（字节）
-%T：当前 tracker
-%I: 信息哈希值 v1
-%J：信息哈希值 v2
-%K: Torrent ID
-```
-
-* 调用 rcp.py 可以使用如下命令行：
-```sh
-python rcp.py -F "%F" -I "%I" -D "%D" -L "%L" -G "%G" -Z "%Z" --hash-dir
-```
-> 这样的调用方式下，不需要连接下载器，也不需要 `qbittorrent-api` 依赖
-
-* 为方便，加了qbfunc.py，通过 qbittorrent-api 获取信息，可以如下调用：
-```sh
-python rcp.py -I "%I"
-```
-
-## rcpconfig.ini
-* 需要一个配置文件，内容包括：
-```ini
-[TORLL]
-torll_url = http://127.0.0.1:5006
-torll_apikey = torll_apikey
-
-[TORCP]
-torcpdb_url = http://127.0.0.1:5009
-torcpdb_apikey = torcpdb_apikey
-link_dir = /volume1/emby
-bracket = --plex-bracket
-areadir = --sep-area5
-genre = 动画,纪录,真人秀,脱口秀
-genre_with_area =
-symbolink =
-extra_param =
-insert_hash_dir = False
-
-[CATEGORY_DIR]
-未完结 = 未完结
-特摄 = 特摄
-综艺 = 综艺
-
-[AUTO_CATEGORY]
-未完结 = S\d+E\d+|第\d+.*集
-特摄 = 特摄
-
-[QBIT]
+[torll]
+# torll 服务的 URL 地址
+url = http://127.0.0.1:6006/api/v1/torcp/info
+# torll 服务的 API Key
+api_key = your_secret_api_key
+# 你在 torll 中设置的 qBittorrent 客户端名称
 qbitname = qb10
-host = 127.0.0.1
-port = 15190
-username = admin
-password = qbit_password
+
+[emby]
+# Emby/Jellyfin 媒体库的根目录
+# 注意：运行 rcp.py 的主机需要有对该目录的写入权限
+root_path = /path/to/your/media/library
 ```
 
+## 使用方法
+
+### 1. 创建 `rcp.sh` 包装脚本
+
+为了确保 `rcp.py` 在正确的目录下执行，并能记录日志，建议创建一个 `rcp.sh` 脚本来调用它。
+
+在项目目录下创建 `rcp.sh` 文件，内容如下：
+
+```sh
+#!/bin/bash
+# 脚本所在的绝对路径
+# !!! 修改为你项目实际的绝对路径 !!!
+cd /path/to/your/rcp
+
+# 使用你的 Python 解释器路径执行 rcp.py
+# 日志会输出到 rcp.log 和 rcp2e.log 文件中
+/usr/bin/python rcp.py "$1" -t "$2" -u "$3" -n "$4" >> rcp.log 2>> rcp2e.log
+```
+
+**注意:**
+- 将 `cd /path/to/your/rcp` 中的路径修改为 `rcp.py` 所在的 **绝对路径**。
+- 将 `/usr/bin/python` 修改为你环境中 Python 3 的实际路径 (可以通过 `which python` 或 `which python3` 查看)。
+- 确保脚本有执行权限: `chmod +x rcp.sh`。
+
+### 2. 配置 qBittorrent
+
+打开 qBittorrent 的 `设置` -> `下载` -> `种子下载完成时运行外部程序`，填入以下命令：
+
+```sh
+/path/to/your/rcp/rcp.sh "%F" "%I" "%L" "%N"
+```
+
+- 将 `/path/to/your/rcp/rcp.sh` 替换为 `rcp.sh` 脚本的 **绝对路径**。
+- 参数说明:
+    - `%F`: 下载的文件/目录的完整路径
+    - `%I`: 种子 HASH
+    - `%L`: 种子分类
+    - `%N`: 种子名称
+
+### (备选) 解决中文参数乱码问题
+
+少数系统在通过命令行传递中文名时可能会出现编码错误。如果遇到此问题，可以改用环境变量来传递参数。
+
+修改 `rcp.sh` 如下:
+
+```sh
+#!/bin/bash
+# 将从 qBittorrent 接收到的参数导出为环境变量
+export RCP_TOR_PATH="$1"
+export RCP_TOR_HASH="$2"
+export RCP_DL_UUID="$3"
+export RCP_TOR_NAME="$4"
+
+# !!! 修改为你项目实际的绝对路径 !!!
+cd /path/to/your/rcp
+
+# 执行 Python 脚本，脚本内部会自动读取环境变量
+/usr/bin/python rcp.py >> rcp.log 2>> rcp2e.log
+```
+`rcp.py` 脚本被设计为优先使用命令行参数，如果参数不完整，则会自动尝试从环境变量中读取，无需修改 Python 代码。
+
+## 日志
+
+脚本的运行日志和错误日志会分别记录在 `rcp.py` 同目录下的 `rcp.log` 和 `rcp2e.log` 文件中。如果整理失败，请检查这两个文件以定位问题。

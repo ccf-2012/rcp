@@ -1,4 +1,0 @@
-qbittorrent-api
-requests
-configparser
-loguru
