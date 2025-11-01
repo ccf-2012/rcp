@@ -184,8 +184,14 @@ def process_tv(config, media_info, tor_path):
         season_str = media_info.get('season')
         if not season_str:
             raise ValueError("API未返回季号 (season)，无法处理。")
-            
-        season_target_dir = os.path.join(target_dir, season_str)
+        
+        try:
+            season_num = int(season_str)
+            season_dir_name = f"Season {season_num:02d}"
+        except ValueError:
+            season_dir_name = season_str
+
+        season_target_dir = os.path.join(target_dir, season_dir_name)
         os.makedirs(season_target_dir, exist_ok=True)
         
         for src_file in media_files:
@@ -214,17 +220,18 @@ def process_tv(config, media_info, tor_path):
                 dst_file = os.path.join(season_target_dir, os.path.basename(src_file))
                 create_hard_link(src_file, dst_file)
     else:
-        logging.info("未检测到分季目录，将根据API返回的季号创建目录。")
-        media_files = find_media_files(tor_path)
-        if not media_files:
-            logging.warning(f"在 {tor_path} 中未找到媒体文件。")
-            return
-            
         season_str = media_info.get('season')
         if not season_str:
             raise ValueError("API未返回季号 (season)，无法处理。")
-            
-        season_target_dir = os.path.join(target_dir, season_str)
+        
+        try:
+            season_num = int(season_str)
+            season_dir_name = f"Season {season_num:02d}"
+        except ValueError:
+            # If season_str is not a simple number (e.g., a list string like '[1, 2]'), use it directly
+            season_dir_name = season_str
+
+        season_target_dir = os.path.join(target_dir, season_dir_name)
         os.makedirs(season_target_dir, exist_ok=True)
         
         for src_file in media_files:
