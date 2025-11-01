@@ -30,6 +30,8 @@ class RcpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 elif self.path == '/rcp/modify':
                     # Placeholder for future implementation
                     self.handle_modify(payload)
+                elif self.path == '/rcp/delete_files':
+                    self.handle_delete_files(payload)
                 else:
                     self._send_response(404, {'status': 'error', 'message': 'Endpoint not found'})
 
@@ -70,6 +72,25 @@ class RcpRequestHandler(http.server.SimpleHTTPRequestHandler):
         logging.info("Handling /rcp/modify")
         self._handle_relink_request(payload)
 
+    def handle_delete_files(self, payload):
+        """
+        Handles deleting hardlinked files/folders on the agent.
+        """
+        logging.info("Handling /rcp/delete_files")
+        rel_path = payload.get('rel_path')
+
+        if not rel_path:
+            self._send_response(400, {'status': 'error', 'message': 'Missing rel_path for /rcp/delete_files'})
+            return
+
+        config = load_config()
+        try:
+            delete_links(config, rel_path)
+            self._send_response(200, {'status': 'success', 'message': f'Successfully deleted {rel_path}'})
+        except Exception as e:
+            logging.error(f"Error deleting files for {rel_path}: {e}", exc_info=True)
+            self._send_response(500, {'status': 'error', 'message': str(e)})
+
     def _handle_relink_request(self, payload):
         """Core logic for both relink and modify operations."""
         old_rel_path = payload.get('old_rel_path')
@@ -107,7 +128,7 @@ def main():
         
         with socketserver.TCPServer(("", PORT), RcpRequestHandler) as httpd:
             logging.info(f"RCP Agent starting on port {PORT}...")
-            logging.info("Available endpoints: POST /rcp/process, POST /rcp/relink, POST /rcp/modify")
+            logging.info("Available endpoints: POST /rcp/process, POST /rcp/relink, POST /rcp/modify, POST /rcp/delete_files")
             httpd.serve_forever()
     except FileNotFoundError as e:
         logging.error(f"Could not start agent: {e}")
