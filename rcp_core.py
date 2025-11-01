@@ -171,9 +171,10 @@ def process_tv(config, media_info, tor_path):
     logging.info(f"创建电视剧目录: {target_dir}")
     os.makedirs(target_dir, exist_ok=True)
 
+    media_files = [] # Initialize media_files here
+
     if os.path.isfile(tor_path):
         logging.info(f"检测到单文件 torrent，按单文件模式处理: {tor_path}")
-        media_files = []
         if os.path.splitext(tor_path)[1].lower() in VIDEO_EXTS:
             media_files.append(tor_path)
         
@@ -184,7 +185,7 @@ def process_tv(config, media_info, tor_path):
         season_str = media_info.get('season')
         if not season_str:
             raise ValueError("API未返回季号 (season)，无法处理。")
-        
+            
         try:
             season_num = int(season_str)
             season_dir_name = f"Season {season_num:02d}"
@@ -220,15 +221,20 @@ def process_tv(config, media_info, tor_path):
                 dst_file = os.path.join(season_target_dir, os.path.basename(src_file))
                 create_hard_link(src_file, dst_file)
     else:
+        logging.info("未检测到分季目录，将根据API返回的季号创建目录。")
+        media_files = find_media_files(tor_path)
+        if not media_files:
+            logging.warning(f"在 {tor_path} 中未找到媒体文件。")
+            return
+            
         season_str = media_info.get('season')
         if not season_str:
             raise ValueError("API未返回季号 (season)，无法处理。")
-        
+            
         try:
             season_num = int(season_str)
             season_dir_name = f"Season {season_num:02d}"
         except ValueError:
-            # If season_str is not a simple number (e.g., a list string like '[1, 2]'), use it directly
             season_dir_name = season_str
 
         season_target_dir = os.path.join(target_dir, season_dir_name)
