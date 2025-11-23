@@ -3,7 +3,7 @@ import http.server
 import socketserver
 import json
 import logging
-from rcp_core import run_rcp_process, load_config, delete_links, execute_hardlinking
+from rcp_core import run_rcp_process, load_config, delete_links, execute_hardlinking, translate_path_to_agent_path
 
 # Setup basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -109,8 +109,12 @@ class RcpRequestHandler(http.server.SimpleHTTPRequestHandler):
         else:
             logging.info("No old_rel_path provided, skipping deletion.")
 
+        # Translate the path before creating new links
+        translated_tor_path = translate_path_to_agent_path(tor_path, config.get('path_mapping', {}))
+        logging.info(f"Original tor_path: {tor_path}, Translated tor_path: {translated_tor_path}")
+
         # 2. Create new links
-        execute_hardlinking(config, new_media_info, tor_path)
+        execute_hardlinking(config, new_media_info, translated_tor_path)
         
         self._send_response(200, {'status': 'success', 'message': 'Relink process completed successfully.'})
 
