@@ -28,15 +28,45 @@ def load_config():
         torll_config = config['torll']
         emby_config = config['emby']
         
+        path_mapping = {}
+        if 'path_mapping' in config:
+            # Sort path_mapping keys by length in descending order to ensure longest prefix match
+            # This is important for paths like /downloads and /downloads/movies
+            sorted_keys = sorted(config['path_mapping'].keys(), key=len, reverse=True)
+            for key in sorted_keys:
+                path_mapping[key] = config['path_mapping'][key]
+        
         return {
             'url': torll_config['url'],
             'api_key': torll_config['api_key'],
             'root_path': emby_config['root_path'],
             'qbitname': torll_config['qbitname'],
+            'path_mapping': path_mapping,
         }
     except KeyError as e:
         logging.error(f"配置文件中缺少必要的键: {e}")
         raise KeyError(f"Missing required key in config: {e}")
+
+def translate_path_to_agent_path(path: str, path_mapping: dict) -> str:
+    """
+    Translates a path from the main application's perspective to the rcp_agent's perspective
+    using the provided path mapping rules.
+    """
+    for app_path_prefix, agent_path_prefix in path_mapping.items():
+        # Ensure that paths are treated as directories for os.path.relpath
+        # so that /a matches /a/b but not /abc
+        normalized_app_path_prefix = os.path.normpath(app_path_prefix)
+        normalized_path = os.path.normpath(path)
+
+        if normalized_path.startswith(normalized_app_path_prefix):
+            # Calculate the relative path from the app_path_prefix
+            relative_path = os.path.relpath(normalized_path, normalized_app_path_prefix)
+            # Join with the agent_path_prefix to get the translated path
+            translated_path = os.path.join(agent_path_prefix, relative_path)
+            logging.debug(f"Translated path '{path}' to '{translated_path}' using mapping '{app_path_prefix}' -> '{agent_path_prefix}'")
+            return translated_path
+    logging.debug(f"No path mapping found for path '{path}', returning original path.")
+    return path
 
 def get_media_info(config, torhash, dl_uuid, tor_path, torname=None):
     """向torll3 API发送请求获取媒体信息"""
@@ -255,9 +285,13 @@ def run_rcp_process(tor_path, torhash, dl_uuid=None, torname=None):
 
     config = load_config()
     
-    media_info = get_media_info(config, torhash, dl_uuid, tor_path, torname)
+    # Translate tor_path from app's perspective to agent's perspective
+    translated_tor_path = translate_path_to_agent_path(tor_path, config.get('path_mapping', {}))
+    logging.info(f"Original tor_path: {tor_path}, Translated tor_path: {translated_tor_path}")
     
-    execute_hardlinking(config, media_info, tor_path)
+    media_info = get_media_info(config, torhash, dl_uuid, translated_tor_path, torname)
+    
+    execute_hardlinking(config, media_info, translated_tor_path)
         
     logging.info("--- rcp_core process finished. ---")
 

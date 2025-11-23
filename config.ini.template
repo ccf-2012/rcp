@@ -9,3 +9,20 @@ qbitname = qb10
 [emby]
 # Emby/Jellyfin媒体库的根目录
 root_path = /path/to/your/media/library
+
+
+[path_mapping]
+# 配置路径映射规则。当主应用（通常在Docker中）发送路径给rcp_agent时，
+# rcp_agent会根据这里的配置将主应用内部路径转换为rcp_agent所在机器上的实际路径。
+# 格式为：主应用内部路径 = rcp_agent所在机器上的实际路径
+#
+# 示例：
+# 如果你的主应用在Docker中看到的下载路径是 /app/downloads，
+# 而rcp_agent所在机器上的实际下载路径是 /mnt/user/downloads，
+# 则添加：
+# /app/downloads = /mnt/user/downloads
+#
+# 如果你的主应用在Docker中看到的媒体库路径是 /app/media，
+# 而rcp_agent所在机器上的实际媒体库路径是 /mnt/user/media，
+# 则添加：
+# /app/media = /mnt/user/media
