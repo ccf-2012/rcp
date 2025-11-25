@@ -1,7 +1,7 @@
 [torll]
-# torll2服务的URL地址
+# torll3服务的URL地址
 url = http://127.0.0.1:8000/api/v1/torcp/info
-# torll2 服务的API Key
+# torll3服务的API Key
 api_key = your_secret_api_key
 qbitname = qb10
 
@@ -9,7 +9,6 @@ qbitname = qb10
 [emby]
 # Emby/Jellyfin媒体库的根目录
 root_path = /path/to/your/media/library
-
 
 [path_mapping]
 # 配置路径映射规则。当主应用（通常在Docker中）发送路径给rcp_agent时，
@@ -26,3 +25,15 @@ root_path = /path/to/your/media/library
 # 而rcp_agent所在机器上的实际媒体库路径是 /mnt/user/media，
 # 则添加：
 # /app/media = /mnt/user/media
+
+[rcp_agent]
+# rcp_agent 监听的端口。
+# 如果未指定，默认为 6008。
+port = 6008
+
+
+
+# 允许连接到 rcp_agent 的 IP 地址白名单，用逗号分隔。
+# 如果为空或未设置，则允许所有 IP 连接。
+# 例如: 127.0.0.1,192.168.1.100
+whitelist_ips = 

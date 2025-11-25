@@ -36,12 +36,17 @@ def load_config():
             for key in sorted_keys:
                 path_mapping[key] = config['path_mapping'][key]
         
+        
+        rcp_agent_config = config['rcp_agent'] if 'rcp_agent' in config else {}
+
         return {
             'url': torll_config['url'],
             'api_key': torll_config['api_key'],
             'root_path': emby_config['root_path'],
             'qbitname': torll_config['qbitname'],
             'path_mapping': path_mapping,
+            'agent_port': rcp_agent_config.getint('port', 6008),
+            'whitelist_ips': [ip.strip() for ip in rcp_agent_config.get('whitelist_ips', '').split(',') if ip.strip()],
         }
     except KeyError as e:
         logging.error(f"配置文件中缺少必要的键: {e}")

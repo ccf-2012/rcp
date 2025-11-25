@@ -5,13 +5,32 @@ import json
 import logging
 from rcp_core import run_rcp_process, load_config, delete_links, execute_hardlinking, translate_path_to_agent_path
 
+
 # Setup basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-PORT = 6008 # We can make this configurable later
-
 class RcpRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def _check_ip_whitelist(self):
+        """Checks if the client IP is in the whitelist. Returns True if allowed, False otherwise."""
+        whitelist = self.server.whitelist
+        client_ip = self.client_address[0]
+        
+        if whitelist and client_ip not in whitelist:
+            logging.warning(f"Forbidden: IP {client_ip} is not in the whitelist.")
+            self._send_response(403, {'status': 'error', 'message': 'Forbidden: IP not in whitelist'})
+            return False
+        return True
+
+    def do_GET(self):
+        """Explicitly forbid GET requests to prevent directory listing."""
+        if not self._check_ip_whitelist():
+            return
+        self._send_response(405, {'status': 'error', 'message': 'Method Not Allowed'})
+
     def do_POST(self):
+        """Handles POST requests for RCP operations after checking IP whitelist."""
+        if not self._check_ip_whitelist():
+            return
         # For now, we only have one endpoint, but we can add more later
         if self.path.startswith('/rcp/'):
             try:
@@ -127,11 +146,17 @@ class RcpRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 def main():
     try:
-        # Load config to ensure it's valid on startup
-        load_config()
+        config = load_config()
+        port = config.get('agent_port', 6008)
+        whitelist = config.get('whitelist_ips', [])
         
-        with socketserver.TCPServer(("", PORT), RcpRequestHandler) as httpd:
-            logging.info(f"RCP Agent starting on port {PORT}...")
+        with socketserver.TCPServer(("", port), RcpRequestHandler) as httpd:
+            httpd.whitelist = whitelist
+            if whitelist:
+                logging.info(f"RCP Agent starting on port {port}, IP whitelist enabled: {whitelist}")
+            else:
+                logging.info(f"RCP Agent starting on port {port} (no IP whitelist, allowing all connections)")
+            
             logging.info("Available endpoints: POST /rcp/process, POST /rcp/relink, POST /rcp/modify, POST /rcp/delete_files")
             httpd.serve_forever()
     except FileNotFoundError as e:
