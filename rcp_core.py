@@ -138,6 +138,20 @@ def create_hard_link(src, dst):
     except Exception as e:
         logging.error(f"发生未知错误: {e}")
 
+def link_dir_recursive(src, dst):
+    """
+    Recursively creates hard links for all files from src directory to dst directory,
+    recreating the directory structure.
+    """
+    os.makedirs(dst, exist_ok=True)
+    for item in os.listdir(src):
+        src_path = os.path.join(src, item)
+        dst_path = os.path.join(dst, item)
+        if os.path.isdir(src_path):
+            link_dir_recursive(src_path, dst_path)
+        else:
+            create_hard_link(src_path, dst_path)
+
 def generate_movie_links(target_dir, media_files, media_info):
     """
     根据媒体信息，为电影文件（包括关联字幕）生成并创建硬链接。
@@ -184,6 +198,21 @@ def process_movie(config, media_info, tor_path):
     logging.info(f"创建电影目录: {target_dir}")
     os.makedirs(target_dir, exist_ok=True)
     
+    # 检查是否为BDMV原盘结构
+    if os.path.isdir(tor_path):
+        bdmv_path = os.path.join(tor_path, 'BDMV')
+        if os.path.isdir(bdmv_path):
+            logging.info("检测到 BDMV 目录结构，将进行目录链接。")
+            link_dir_recursive(bdmv_path, os.path.join(target_dir, 'BDMV'))
+            
+            # 同时链接CERTIFICATE目录（如果存在）
+            certificate_path = os.path.join(tor_path, 'CERTIFICATE')
+            if os.path.isdir(certificate_path):
+                logging.info("检测到 CERTIFICATE 目录，进行链接。")
+                link_dir_recursive(certificate_path, os.path.join(target_dir, 'CERTIFICATE'))
+            return  # 原盘处理完成
+
+    # 如果不是原盘，则回退到原有的文件链接逻辑
     media_files = []
     if os.path.isfile(tor_path):
         if os.path.splitext(tor_path)[1].lower() in VIDEO_EXTS:
@@ -192,7 +221,7 @@ def process_movie(config, media_info, tor_path):
         media_files = find_media_files(tor_path)
 
     if not media_files:
-        logging.warning(f"在 {tor_path} 中未找到媒体文件。")
+        logging.warning(f"在 {tor_path} 中未找到媒体文件或BDMV结构。")
         return
 
     generate_movie_links(target_dir, media_files, media_info)
@@ -219,13 +248,14 @@ def process_tv(config, media_info, tor_path):
             
         season_str = media_info.get('season')
         if not season_str:
-            raise ValueError("API未返回季号 (season)，无法处理。")
-            
-        try:
-            season_num = int(season_str)
-            season_dir_name = f"Season {season_num:02d}"
-        except ValueError:
-            season_dir_name = season_str
+            logging.warning("API未返回季号 (season)，将创建 'Season unknown01' 目录。")
+            season_dir_name = "Season unknown01"
+        else:
+            try:
+                season_num = int(season_str)
+                season_dir_name = f"Season {season_num:02d}"
+            except ValueError:
+                season_dir_name = season_str
 
         season_target_dir = os.path.join(target_dir, season_dir_name)
         os.makedirs(season_target_dir, exist_ok=True)
@@ -264,13 +294,14 @@ def process_tv(config, media_info, tor_path):
             
         season_str = media_info.get('season')
         if not season_str:
-            raise ValueError("API未返回季号 (season)，无法处理。")
-            
-        try:
-            season_num = int(season_str)
-            season_dir_name = f"Season {season_num:02d}"
-        except ValueError:
-            season_dir_name = season_str
+            logging.warning("API未返回季号 (season)，将创建 'Season unknown01' 目录。")
+            season_dir_name = "Season unknown01"
+        else:
+            try:
+                season_num = int(season_str)
+                season_dir_name = f"Season {season_num:02d}"
+            except ValueError:
+                season_dir_name = season_str
 
         season_target_dir = os.path.join(target_dir, season_dir_name)
         os.makedirs(season_target_dir, exist_ok=True)
