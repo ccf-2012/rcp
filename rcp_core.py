@@ -12,7 +12,7 @@ import shutil
 # This is the core logic, designed to be imported.
 
 # 从torcp.py借鉴的视频文件扩展名列表
-VIDEO_EXTS = ['.mkv', '.mp4', '.ts', '.m2ts', '.mov', '.avi', '.wmv', '.strm', '.ass', '.srt']
+VIDEO_EXTS = ['.mkv', '.mp4', '.ts', '.m2ts', '.mov', '.avi', '.wmv', '.strm', '.iso', '.ass', '.srt']
 
 def load_config():
     """加载配置文件"""
@@ -226,6 +226,16 @@ def process_movie(config, media_info, tor_path):
 
     generate_movie_links(target_dir, media_files, media_info)
 
+def extract_season(text):
+    """从文本中提取季号"""
+    if not text:
+        return None
+    # 匹配 S01, Season 01, Season.01, S1 等
+    match = re.search(r'S(\d{1,3})|Season[\s._]*(\d{1,3})', text, re.IGNORECASE)
+    if match:
+        return int(match.group(1) or match.group(2))
+    return None
+
 def process_tv(config, media_info, tor_path):
     """处理电视剧类别"""
     emby_root = config['root_path']
@@ -235,80 +245,58 @@ def process_tv(config, media_info, tor_path):
     logging.info(f"创建电视剧目录: {target_dir}")
     os.makedirs(target_dir, exist_ok=True)
 
-    media_files = [] # Initialize media_files here
-
+    # 1. 递归查找所有媒体文件
     if os.path.isfile(tor_path):
-        logging.info(f"检测到单文件 torrent，按单文件模式处理: {tor_path}")
-        if os.path.splitext(tor_path)[1].lower() in VIDEO_EXTS:
-            media_files.append(tor_path)
-        
-        if not media_files:
-            logging.warning(f"文件 {tor_path} 不是支持的媒体文件类型。")
-            return
-            
-        season_str = media_info.get('season')
-        if not season_str:
-            logging.warning("API未返回季号 (season)，将创建 'Season unknown01' 目录。")
-            season_dir_name = "Season unknown01"
-        else:
-            try:
-                season_num = int(season_str)
-                season_dir_name = f"Season {season_num:02d}"
-            except ValueError:
-                season_dir_name = season_str
+        media_files = [tor_path]
+    else:
+        media_files = find_media_files(tor_path)
 
-        season_target_dir = os.path.join(target_dir, season_dir_name)
-        os.makedirs(season_target_dir, exist_ok=True)
-        
-        for src_file in media_files:
-            dst_file = os.path.join(season_target_dir, os.path.basename(src_file))
-            create_hard_link(src_file, dst_file)
+    if not media_files:
+        logging.warning(f"在 {tor_path} 中未找到媒体文件。")
         return
 
-    season_pattern = re.compile(r'S(\d+)|Season[\s._]*(\d+)', re.IGNORECASE)
-    
-    subdirs = [d for d in os.listdir(tor_path) if os.path.isdir(os.path.join(tor_path, d))]
-    season_folders = {}
-    for subdir in subdirs:
-        match = season_pattern.match(subdir)
-        if match:
-            season_num = int(match.group(1) or match.group(2))
-            season_folders[season_num] = os.path.join(tor_path, subdir)
+    # 获取种子根目录的绝对路径，用于计算回溯深度
+    source_abs = os.path.abspath(tor_path)
+    # 包含种子文件夹名本身在内的回溯基础
+    base_dir = os.path.dirname(source_abs)
 
-    if season_folders:
-        logging.info("检测到分季目录，将进行递归链接。")
-        for season_num, season_path in season_folders.items():
-            season_dir_name = f"Season {season_num:02d}"
-            season_target_dir = os.path.join(target_dir, season_dir_name)
-            os.makedirs(season_target_dir, exist_ok=True)
-            media_files = find_media_files(season_path)
-            for src_file in media_files:
-                dst_file = os.path.join(season_target_dir, os.path.basename(src_file))
-                create_hard_link(src_file, dst_file)
-    else:
-        logging.info("未检测到分季目录，将根据API返回的季号创建目录。")
-        media_files = find_media_files(tor_path)
-        if not media_files:
-            logging.warning(f"在 {tor_path} 中未找到媒体文件。")
-            return
-            
-        season_str = media_info.get('season')
-        if not season_str:
-            logging.warning("API未返回季号 (season)，将创建 'Season unknown01' 目录。")
-            season_dir_name = "Season unknown01"
+    for src_file in media_files:
+        src_abs = os.path.abspath(src_file)
+        # 计算相对于种子父目录的路径部分
+        relative_path = os.path.relpath(src_abs, base_dir)
+        path_parts = relative_path.split(os.sep)
+        
+        detected_season = None
+        # 2. 从文件名开始向上级目录逐级识别季号
+        for part in reversed(path_parts):
+            season_num = extract_season(part)
+            if season_num is not None:
+                detected_season = season_num
+                break
+        
+        # 3. 确定最终季文件夹名
+        if detected_season is not None:
+            season_dir_name = f"Season {detected_season:02d}"
         else:
-            try:
-                season_num = int(season_str)
-                season_dir_name = f"Season {season_num:02d}"
-            except ValueError:
-                season_dir_name = season_str
-
+            # 回退逻辑：使用 API 返回的建议季号
+            season_str = media_info.get('season')
+            if not season_str:
+                logging.warning(f"文件 {os.path.basename(src_file)} 未识别到季特征，且API无季号返回，使用 'Season unknown01'")
+                season_dir_name = "Season unknown01"
+            else:
+                try:
+                    # 处理可能的 [1,2] 或 "1" 等格式
+                    first_num_match = re.search(r'\d+', str(season_str))
+                    season_num = int(first_num_match.group()) if first_num_match else 1
+                    season_dir_name = f"Season {season_num:02d}"
+                except (ValueError, TypeError):
+                    season_dir_name = str(season_str)
+        
         season_target_dir = os.path.join(target_dir, season_dir_name)
         os.makedirs(season_target_dir, exist_ok=True)
         
-        for src_file in media_files:
-            dst_file = os.path.join(season_target_dir, os.path.basename(src_file))
-            create_hard_link(src_file, dst_file)
+        dst_file = os.path.join(season_target_dir, os.path.basename(src_file))
+        create_hard_link(src_file, dst_file)
 
 def run_rcp_process(tor_path, torhash, dl_uuid=None, torname=None):
     """
